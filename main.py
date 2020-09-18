@@ -69,9 +69,6 @@ cities_dict = {
 }
 
 search_words = [
-    'borracharia',
-    'pneu',
-    'rodas'
 ]
 
 
