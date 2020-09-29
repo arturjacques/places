@@ -54,8 +54,7 @@ class Maps:
                 params_store['placeid'] = place_id
                 resp = requests.get(self.url_details_search, params=params_store)
                 self.places[place_id] = {**resp.json()['result'], **self.places[place_id]}
-
-        return self.places
+                self.save_to_csv('places_temp.csv')
 
     def to_dataframe(self):
         return pd.DataFrame(self.places).T
@@ -75,3 +74,17 @@ class Maps:
         if 'results' in resp.json():
             return resp.json()['results'][0]['geometry']['location']
 
+    def portuguese_dataframe(self, df):
+        df['cidade'] = df.formatted_address.apply(find_city)
+        df = df.rename({'name': 'nome', 'location': 'coordenadas',
+                          'url': 'link_maps', 'rating': 'avaliação',
+                          'formatted_phone_number': 'telefone',
+                          'formatted_address': 'endereço'}, axis=1)
+        df = df.loc[:, ['nome', 'telefone', 'endereço', 'cidade', 'coordenadas', 'link_maps', 'avaliação']]
+        return df
+
+
+def find_city(text):
+    list_text = text.split(',')
+    if len(list_text)>3:
+        return list_text[-3].split(' - ')[0]
